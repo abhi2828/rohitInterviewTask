@@ -1,43 +1,45 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Navbar from './comp/Navbar';
 import Home from './pages/home/Home';
 import LoginPage from './pages/login/LoginPage';
 import AboutPage from './pages/aboutPage/AboutPage';
-import { useSelector, useDispatch } from 'react-redux';
-import { loginSuccess, logout } from './pages/login/authSlice';
+import Register from './pages/login/Register';
 
 const App = () => {
-  const dispatch = useDispatch();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check if there is a token in local storage
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // If token exists, dispatch loginSuccess action
-      dispatch(loginSuccess({ token, user: null }));
+      setIsLoggedIn(true);
     } else {
-      // If token does not exist, dispatch logout action
-      dispatch(logout());
+      setIsLoggedIn(false);
     }
-  }, [dispatch]);
+  }, []);
 
-  const { isLoading, error, isLoggedIn } = useSelector((state) => state.authSlice);
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+  };
 
   return (
     <Router>
-      {isLoggedIn ? (
-        <>
-          <Navbar />
-          <Routes>
-            <Route path="/home" element={<Home />} />
-            <Route path="/about" element={<AboutPage />} />
-            {/* <Route path="*" element={<Navigate to="/home" />} /> */}
-          </Routes>
-        </>
-      ) : (
-        <LoginPage />
-      )}
+      {isLoggedIn ? <Navbar onLogout={handleLogout} />: <></>}
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/"
+          element={isLoggedIn ? <Navigate to="/home" /> : <LoginPage onLogin={handleLogin} />}
+        />
+        <Route path="/home" element={<Home />} />
+        <Route path="/about" element={<AboutPage />} />
+        
+      </Routes>
     </Router>
   );
 };

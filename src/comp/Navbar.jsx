@@ -1,15 +1,15 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { logOut, logout } from '../pages/login/authSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { NavLink, useNavigate } from 'react-router-dom';
 
-const Navbar = () => {
-  const dispatch = useDispatch();
-  const { isLoading, error } = useSelector((state) => state.authSlice);
+const Navbar = ({ isLoggedIn, onLogout }) => {
+  const navigate = useNavigate();
 
-  const handleLogout = async() => {
-    await dispatch(logOut());
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    onLogout(); 
+    navigate("/");
   };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
@@ -20,16 +20,14 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <NavLink className="nav-link" exact="true" to="/home">Home</NavLink>
+              <NavLink className="nav-link" exact to="/home">Home</NavLink>
             </li>            
             <li className="nav-item">
-              <NavLink className="nav-link" exact="true" to="/about">About</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" exact="true" to="/"  onClick={handleLogout}>Logout</NavLink>
+              <NavLink className="nav-link" exact to="/about">About</NavLink>
             </li>
           </ul>
         </div>
+        {<NavLink className="nav-link" exact to="/" onClick={handleLogout}>Logout</NavLink>}
       </div>
     </nav>
   );

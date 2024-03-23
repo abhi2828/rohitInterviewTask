@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Button,
@@ -9,38 +9,36 @@ import {
   Label,
   Row,
 } from 'reactstrap';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
-const LoginPage = ({ onLogin }) => {
+const Register = ({ onRegister }) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm({defaultValues: {
     name: '',
+    email:"",
     password: ''
   }});
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit = (data) => {
-    // Generate random string for token
-    const token = Math.random().toString(36).substring(7);
-    localStorage.setItem('token', token);
-    setIsLoggedIn(true);
-    navigate('/home');
-    onLogin()
+    const existingData = JSON.parse(localStorage.getItem('register_users')) || [];
+    const updatedData = [...existingData, data];
+    localStorage.setItem('register_users', JSON.stringify(updatedData));
+    navigate('/');
   };
 
-  if (isLoggedIn) {
-    return <p>Welcome, you are now logged in!</p>;
-  }
+
+  
 
   return (
     <div className="container">
-      <h2 className="text-center">Login</h2>
+      <h2 className="text-center">Register</h2>
 
-      <Row tag={Form} className="p-2 w-25 m-auto" onSubmit={handleSubmit(onSubmit)}>
+      <Row tag={Form} autoComplete="off" className="p-2 w-25 m-auto" onSubmit={handleSubmit(onSubmit)}>
         <Col sm={12} display="flex" className="mb-1">
           <Label className="form-label" for="name">
             Name <span className="text-danger">*</span>
@@ -60,6 +58,28 @@ const LoginPage = ({ onLogin }) => {
           />
           {errors && errors.name && (
             <FormFeedback>{errors.name.message}</FormFeedback>
+          )}
+        </Col>
+        <Col sm={12} display="flex" className="mb-1">
+          <Label className="form-label" for="email">
+            Email <span className="text-danger">*</span>
+          </Label>
+          <Controller
+            id="email"
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="email"
+                placeholder="Enter Email"
+                maxLength="100"
+                invalid={errors && errors.email ? true : false}
+                {...field}
+              />
+            )}
+          />
+          {errors && errors.email && (
+            <FormFeedback>{errors.email.message}</FormFeedback>
           )}
         </Col>
         <Col sm={12} display="flex" className="mb-1">
@@ -90,15 +110,15 @@ const LoginPage = ({ onLogin }) => {
             color="primary"
             type="submit"
           >
-            Login
+            Register
           </Button>
         </Col>
         <Col>
-            <Link to={'/register'}>Register</Link>
+          <Link to={'/'}>Login</Link>
         </Col>
       </Row>
     </div>
   );
 };
 
-export default LoginPage;
+export default Register;
